@@ -445,7 +445,7 @@ function copyStudentResultLink(btn) {
   const roll = popup?.innerHTML.match(/Roll:\s*(\d+)/)?.[1];
   const year = currentYear?.textContent?.trim();
   const group = currentGroup?.textContent?.split(' ')[0];
-  const url = `https://boradrankctg.github.io/rank/entity.html?year=${year}&group=${encodeURIComponent(group)}&roll=${roll}`;
+  const url = `https://boradrankctg.github.ioentity.html?year=${year}&group=${encodeURIComponent(group)}&roll=${roll}`;
 
   navigator.clipboard.writeText(url).then(() => {
     showToast("🔗 Link copied");

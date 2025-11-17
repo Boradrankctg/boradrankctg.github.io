@@ -1681,7 +1681,7 @@ function copyFullResult(btn) {
     const roll = popup?.innerHTML.match(/Roll:\s*(\d+)/)?.[1];
     const year = currentYear?.textContent?.trim();
     const group = currentGroup?.textContent?.split(' ')[0];
-    const url = `https://boradrankctg.github.io/rank/entity.html?year=${year}&group=${encodeURIComponent(group)}&roll=${roll}`;
+    const url = `https://boradrankctg.github.ioentity.html?year=${year}&group=${encodeURIComponent(group)}&roll=${roll}`;
   
     navigator.clipboard.writeText(url).then(() => {
       showToast("🔗 Link copied");
@@ -2441,10 +2441,10 @@ function handleFeaturedClick(yearValue, el) {
             <h2>🚀Enjoying this amazing website?</h2>
             <p>Help us grow! Share this website:</p>
             <div style="display: flex; justify-content: space-around; flex-wrap: wrap; padding: 10px;">
-                <a href="https://wa.me/?text=https://boradrankctg.github.io/rank/" target="_blank"><img src="https://img.icons8.com/color/48/whatsapp.png" alt="WhatsApp" width="36"></a>
-                <a href="https://www.instagram.com/?url=https://boradrankctg.github.io/rank/" target="_blank"><img src="https://img.icons8.com/color/48/instagram-new.png" alt="Instagram" width="36"></a>
-                <a href="https://www.facebook.com/dialog/send?link=https://boradrankctg.github.io/rank/&app_id=YOUR_APP_ID&redirect_uri=https://boradrankctg.github.io/rank/" target="_blank"><img src="https://img.icons8.com/color/48/facebook-messenger.png" alt="Messenger" width="36"></a>
-                <a href="mailto:?subject=Check%20this%20awesome%20ranking%20site!&body=https://boradrankctg.github.io/rank/" target="_blank"><img src="https://img.icons8.com/color/48/gmail--v1.png" alt="Email" width="36"></a>
+                <a href="https://wa.me/?text=https://boradrankctg.github.io" target="_blank"><img src="https://img.icons8.com/color/48/whatsapp.png" alt="WhatsApp" width="36"></a>
+                <a href="https://www.instagram.com/?url=https://boradrankctg.github.io" target="_blank"><img src="https://img.icons8.com/color/48/instagram-new.png" alt="Instagram" width="36"></a>
+                <a href="https://www.facebook.com/dialog/send?link=https://boradrankctg.github.io&app_id=YOUR_APP_ID&redirect_uri=https://boradrankctg.github.io" target="_blank"><img src="https://img.icons8.com/color/48/facebook-messenger.png" alt="Messenger" width="36"></a>
+                <a href="mailto:?subject=Check%20this%20awesome%20ranking%20site!&body=https://boradrankctg.github.io" target="_blank"><img src="https://img.icons8.com/color/48/gmail--v1.png" alt="Email" width="36"></a>
             </div>
             <hr>
             <h3 style="margin-top:10px">⭐ Rate this Website:</h3>
