@@ -870,3 +870,270 @@ body.dark-mode #featuredBox{
 .reply-like-btn:hover{background:#f3f4f6;}
 .reply-del-btn{color:#b91c1c;}
 .reply-del-btn:hover{background:#fee2e2;}
+/* Dark mode fixes for removal request page */
+body.dark-mode .review-box {
+  background: #0f172a;
+  border-color: #334155;
+  color: #e5e7eb;
+}
+
+body.dark-mode .review-box strong {
+  color: #f3f4f6;
+}
+
+/* Fix admin note background and text */
+body.dark-mode .review-box div[style*="background:#f3f4f6"] {
+  background: #1f2937 !important;
+  color: #e5e7eb !important;
+}
+
+/* Fix header text */
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3 {
+  color: #e5e7eb !important;
+}
+
+/* Fix form labels */
+body.dark-mode label {
+  color: #cbd5e1;
+}
+
+/* Fix select dropdowns and inputs */
+body.dark-mode select,
+body.dark-mode input[type="text"],
+body.dark-mode textarea {
+  background: #0b1220;
+  color: #e5e7eb;
+  border: 1px solid #334155;
+}
+
+/* Fix table headers and cells */
+body.dark-mode #adminRequestsTable th {
+  background: #1f2937;
+  color: #e5e7eb;
+}
+
+body.dark-mode #adminRequestsTable td {
+  color: #cbd5e1;
+  border-color: #334155;
+}
+
+/* Fix status display */
+body.dark-mode #statusDisplay {
+  color: #e5e7eb;
+}
+
+body.dark-mode #statusMessage {
+  color: #94a3b8 !important;
+}
+
+/* Fix popup-content in dark mode */
+body.dark-mode .popup-content {
+  background: #0f172a;
+  border-color: #334155;
+  color: #e5e7eb;
+}
+
+body.dark-mode .popup-content h2 {
+  color: #f3f4f6;
+  border-bottom-color: #334155;
+}
+
+
+/* Auth Modal Styles */
+.auth-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.auth-content {
+  background: #fff;
+  border-radius: 20px;
+  padding: 30px;
+  max-width: 450px;
+  width: 90%;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+.auth-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  font-size: 30px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #64748b;
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.auth-header h2 {
+  color: #0f172a;
+  margin-bottom: 8px;
+}
+
+.auth-benefits {
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 10px;
+  padding: 15px;
+  margin: 20px 0;
+}
+
+.benefit-item {
+  padding: 5px 0;
+  color: #0369a1;
+}
+
+.auth-google-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: #fff;
+  border: 2px solid #e2e8f0;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.auth-google-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.auth-google-btn img {
+  width: 20px;
+  height: 20px;
+}
+
+.auth-divider {
+  text-align: center;
+  margin: 20px 0;
+  color: #94a3b8;
+  position: relative;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 40%;
+  height: 1px;
+  background: #e2e8f0;
+}
+
+.auth-divider::before { left: 0; }
+.auth-divider::after { right: 0; }
+
+.auth-email-form input {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+}
+
+.auth-email-btn {
+  width: 100%;
+  background: #2563eb;
+  color: #fff;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 16px;
+  margin-top: 10px;
+}
+
+.auth-note {
+  text-align: center;
+  color: #94a3b8;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+/* Profile Page Styles */
+.profile-card {
+  background: #fff;
+  border-radius: 15px;
+  padding: 30px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+}
+
+.profile-section {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.profile-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  margin-bottom: 15px;
+}
+
+.profile-form {
+  margin: 30px 0;
+}
+
+.profile-form label {
+  display: block;
+  margin: 15px 0 5px;
+  font-weight: 600;
+}
+
+.profile-form input,
+.profile-form select,
+.profile-form textarea {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.profile-stats {
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+/* User menu in nav */
+#authUserMenu {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+body.dark-mode .auth-content {
+  background: #1e293b;
+  color: #fff;
+}
+
+body.dark-mode .auth-email-form input {
+  background: #334155;
+  color: #fff;
+  border-color: #475569;
+}
+
+body.dark-mode .profile-card {
+  background: #1e293b;
+  color: #fff;
+}
