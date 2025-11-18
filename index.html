@@ -60,7 +60,7 @@
 <li id="currentGroup" style="display:none;"></li>
 </ul>
 </nav>
-
+<script type="module" src="scripts/auth.js"></script>
 <nav class="app-nav" role="navigation">
 <div class="nav-inner">
 <a class="brand" href="index.html">🎓 BoardRankCTG</a>
@@ -76,6 +76,18 @@
 <li><button id="shareBtn" class="linklike"><i class="ri-share-line"></i> Share</button></li>
 <li><a href="visitors.html" id="visitorsLink"><i class="fas fa-users"></i> Visitors</a></li>
 <li class="divider"></li>
+<li id="authSignInBtn" style="display:none;">
+  <button onclick="openAuthModal()" class="linklike">
+    <i class="fas fa-sign-in-alt"></i> Sign In
+  </button>
+</li>
+<li id="authUserMenu" style="display:none;align-items:center;gap:10px;">
+  <img id="authUserAvatar" style="width:32px;height:32px;border-radius:50%;" />
+  <span id="authUserName"></span>
+  <a href="profile.html"><i class="fas fa-user-circle"></i></a>
+  <button onclick="signOutUser()" class="linklike"><i class="fas fa-sign-out-alt"></i></button>
+</li>
+<li class="divider"></li>
 <li>
 <label class="theme-switch">
 <input type="checkbox" id="themeToggle" />
@@ -87,20 +99,7 @@
 </div>
 <div class="nav-overlay" id="navOverlay"></div>
 </nav>
-<!-- INSERT ADS HERE -->
-<!-- AD BLOCK 1 -->
-<div style="text-align:center; margin:20px 0;">
-<script type="text/javascript">
-	atOptions = {
-		'key' : 'b6547c47c5251d6ddf897101ab29a8b5',
-		'format' : 'iframe',
-		'height' : 50,
-		'width' : 320,
-		'params' : {}
-	};
-</script>
-<script type="text/javascript" src="https://www.highperformanceformat.com/b6547c47c5251d6ddf897101ab29a8b5/invoke.js"></script>
-</div>
+
 <div id="customBanner" class="info-banner">⚠️ This is not an official rank. It's prepared based on publicly available data.</div>
 <div id="annBanner" class="ann-banner type-info" style="display:none;">
 <div class="ann-inner">
@@ -129,7 +128,7 @@
 </section>
 
 <div class="featured-box" data-value="hsc_2025" onclick="handleFeaturedClick('hsc_2025', this)">
-<div class="new-ribbon">New</div>
+<div class="new-ribbon"><span style="left: -14px; position: relative;">RECHECK</span></div>
 <div class="featured-text">
 <div class="ssc-line">HSC</div>
 <div class="year-line">25</div>
@@ -179,24 +178,6 @@
 <div class="year-line">23</div>
 </div>
 </div>
-
-
-
-
-<!-- AD BLOCK 2 -->
-<div id="container-a18c15a8b5eced98b921013320da3182" style="text-align:center; margin:20px 0;"></div>
-<script async="async" data-cfasync="false" src="https://pl28076253.effectivegatecpm.com/a18c15a8b5eced98b921013320da3182/invoke.js"></script>
-
-<!-- AD BLOCK 3 -->
-<div style="text-align:center; margin:20px 0;">
-<script type='text/javascript' src='https://pl28076405.effectivegatecpm.com/ef/64/80/ef64806886906380891e0ba17d72a92b.js'></script>
-</div>
-
-<p>Check out our sponsor: 
-  <a href="https://www.effectivegatecpm.com/yqz9zj86?key=62b658a73a67a02c053bc9abbb3ce877" target="_blank" rel="noopener noreferrer">Click here</a>
-</p>
-
-
 
 <section id="seo-blurb">
 <div class="seo-container">

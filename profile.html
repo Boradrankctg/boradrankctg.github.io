@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Profile — BoardRankCTG</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet" />
+</head>
+<body>
+  <nav class="app-nav" role="navigation">
+    <div class="nav-inner">
+      <a class="brand" href="index.html">🎓 BoardRankCTG</a>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+        <i class="ri-menu-line"></i>
+      </button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html"><i class="fas fa-house-chimney"></i> Home</a></li>
+        <li><a href="profile.html"><i class="fas fa-user"></i> Profile</a></li>
+        <li><button onclick="signOutUser()" class="linklike"><i class="fas fa-sign-out-alt"></i> Sign Out</button></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="container" style="max-width: 800px; margin: 40px auto;">
+    <div class="profile-card">
+      <h1>My Profile</h1>
+      
+      <div class="profile-section">
+        <img id="profileAvatar" class="profile-avatar" src="" alt="Avatar" />
+        <h2 id="profileName">Loading...</h2>
+        <p id="profileEmail"></p>
+      </div>
+
+      <div class="profile-form">
+        <label>Display Name</label>
+        <input type="text" id="editName" placeholder="Your name" />
+        
+        <label>Institution</label>
+        <input type="text" id="editInstitution" placeholder="Your school/college" />
+        
+        <label>Type</label>
+        <select id="editType">
+          <option value="">Select...</option>
+          <option value="SSC">SSC</option>
+          <option value="HSC">HSC</option>
+          <option value="Teacher">Teacher</option>
+          <option value="Parent">Parent</option>
+          <option value="Other">Other</option>
+        </select>
+        
+        <label>About Me</label>
+        <textarea id="editAbout" rows="4" placeholder="Tell us about yourself..."></textarea>
+        
+        <button onclick="saveProfile()">Save Profile</button>
+      </div>
+
+      <div class="profile-stats">
+        <h3>Activity</h3>
+        <p>Member since: <span id="memberSince">-</span></p>
+        <p>Last login: <span id="lastLogin">-</span></p>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBaKVrTWKeaUxa0EaiDBR8OGpGCAjxAcUA",
+      authDomain: "boardrankctg.firebaseapp.com",
+      databaseURL: "https://boardrankctg-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "boardrankctg",
+      storageBucket: "boardrankctg.firebasestorage.app",
+      messagingSenderId: "751761229963",
+      appId: "1:751761229963:web:43f9dbf71feef6dc9cec8e"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      // Load user data
+      const userData = (await get(ref(db, `users/${user.uid}`))).val() || {};
+      
+      document.getElementById('profileName').textContent = userData.displayName || user.displayName || 'User';
+      document.getElementById('profileEmail').textContent = user.email;
+      document.getElementById('profileAvatar').src = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || user.email)}`;
+      
+      document.getElementById('editName').value = userData.displayName || '';
+      document.getElementById('editInstitution').value = userData.institution || '';
+      document.getElementById('editType').value = userData.type || '';
+      document.getElementById('editAbout').value = userData.about || '';
+      
+      document.getElementById('memberSince').textContent = new Date(userData.createdAt || Date.now()).toLocaleDateString();
+      document.getElementById('lastLogin').textContent = new Date(userData.lastLogin || Date.now()).toLocaleDateString();
+    });
+
+    window.saveProfile = async function() {
+      const user = auth.currentUser;
+      if (!user) return;
+
+      const updates = {
+        displayName: document.getElementById('editName').value,
+        institution: document.getElementById('editInstitution').value,
+        type: document.getElementById('editType').value,
+        about: document.getElementById('editAbout').value,
+        updatedAt: Date.now()
+      };
+
+      await update(ref(db, `users/${user.uid}`), updates);
+      alert('Profile updated successfully!');
+      location.reload();
+    };
+  </script>
+  
+  <script src="scripts/1-core.js"></script>
+  <script type="module" src="scripts/auth.js"></script>
+</body>
+</html>
