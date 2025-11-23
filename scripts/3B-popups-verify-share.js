@@ -309,7 +309,7 @@ async function showIndividualResultWithCheck(roll, year, group) {
   source,
   experience,
   message: messageVal,
-  fingerprint: "verified_" + Date.now(), // Unique ID instead of device fingerprint
+  fingerprint: "verified_" + Date.now(), 
   deviceData,
   timestamp: Date.now()
 });
@@ -358,7 +358,7 @@ async function showIndividualResultWithCheck(roll, year, group) {
         popup.querySelector('#visitorExperience').value = experience;
         popup.querySelector('#visitorMessage').value = messageVal;
 
-        bindSubmit(); // rebind handler after DOM reset
+        bindSubmit(); 
       });
     });
   }
@@ -402,7 +402,6 @@ function visitorInfoDenied() {
 }
 
 
-// ====== Share popup + rating ======
 function showSharePopup() {
   if (document.querySelector('.popup')) return; 
 
@@ -438,7 +437,6 @@ function showSharePopup() {
   document.body.classList.add('locked');
 }
 
-// Auto show share popup once per device after ~2.5 minutes
 if (!localStorage.getItem('sharePopupShown')) {
   setTimeout(() => {
     showSharePopup();
@@ -446,7 +444,6 @@ if (!localStorage.getItem('sharePopupShown')) {
   }, 150000);
 }
 
-// Hook share button (safe)
 document.getElementById('shareBtn')?.addEventListener('click', showSharePopup);
 
 function rateSite(rating) {
@@ -466,7 +463,6 @@ function submitSharePopupReview() {
     return;
   }
 
-  // If not logged in, ask to log in instead of redirecting
   if (localStorage.getItem('userLoggedIn') !== 'true') {
     if (typeof requireLogin === 'function') {
       requireLogin('Please log in to submit a review.');
@@ -477,20 +473,19 @@ function submitSharePopupReview() {
     return;
   }
 
-  // Logged-in: submit directly to Firebase
   (async () => {
     try {
       const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
       const { getDatabase, ref, push, set, get } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js');
 
       const cfg = {
-        apiKey: "AIzaSyBaKVrTWKeaUxa0EaiDBR8OGpGCAjxAcUA",
-        authDomain: "boardrankctg.firebaseapp.com",
-        databaseURL: "https://boardrankctg-default-rtdb.asia-southeast1.firebasedatabase.app",
-        projectId: "boardrankctg",
-        storageBucket: "boardrankctg.firebasestorage.app",
-        messagingSenderId: "751761229963",
-        appId: "1:751761229963:web:43f9dbf71feef6dc9cec8e"
+        apiKey: "AIzaSyAIsOwpONfGwTDFEbfdno8O3sm2G8GObiU",
+        authDomain: "loginforme-f4886.firebaseapp.com",
+        databaseURL: "https://loginforme-f4886-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "loginforme-f4886",
+        storageBucket: "loginforme-f4886.firebasestorage.app",
+        messagingSenderId: "634439962888",
+        appId: "1:634439962888:web:72b9c573e76c8719f9dcbd"
       };
 
       const app = window.__br_reviewApp || initializeApp(cfg, 'reviewApp');

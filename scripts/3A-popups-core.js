@@ -142,7 +142,320 @@ function showRankTipsPopup() {
   });
 }
 
-// Hook buttons for Help + init toggles
+// ===== Onboarding wizard (first-time after login) =====
+function showOnboardingWizard(displayName, uid, startStep = 0) {  try {
+    if (document.querySelector('.onb-overlay')) return;
+    const safeName = String(displayName || 'User').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+
+    const totalSteps = 8;
+    const doneKey = uid ? ('onboardingDone_v1_' + uid) : null;
+    const neverKey = uid ? ('onb_never_v1_' + uid) : null;
+    const stepKey = uid ? ('onb_step_v1_' + uid) : null;
+    let current = Math.max(0, Math.min(startStep || 0, totalSteps - 1));
+    const overlay = document.createElement('div');
+    overlay.className = 'onb-overlay';
+    overlay.innerHTML = `
+    <div class="onb-card">
+      <div class="onb-step-indicator"><span id="onbStepLabel"></span></div>
+      <div id="onbContent" class="onb-content"></div>
+      <div class="onb-actions" id="onbActions"></div>
+ 
+    </div>
+  `;
+    document.body.appendChild(overlay);
+    document.body.classList.add('locked');
+
+    const stepLabelEl = overlay.querySelector('#onbStepLabel');
+    const contentEl = overlay.querySelector('#onbContent');
+    const actionsEl = overlay.querySelector('#onbActions');
+    const neverChk = overlay.querySelector('#onbNeverChk');
+
+    function finish() {
+      try {
+        if (uid) {
+          // mark as done on this device
+          localStorage.setItem('onboardingDone_v1_' + uid, '1');
+        }
+
+        // if "never show again" is checked, store that in DB
+        const neverChk = overlay.querySelector('#onbNeverChk');
+        if (uid && neverChk && neverChk.checked) {
+          // also keep a local hint (only for this browser)
+          localStorage.setItem('onb_never_v1_' + uid, '1');
+
+          // best-effort write to users/<uid>/onboardingNeverShow = true
+          (async () => {
+            try {
+              const { initializeApp, getApps, getApp } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
+              const { getDatabase, ref, update } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js');
+              const cfg = {
+                apiKey: "AIzaSyAIsOwpONfGwTDFEbfdno8O3sm2G8GObiU",
+                authDomain: "loginforme-f4886.firebaseapp.com",
+                databaseURL: "https://loginforme-f4886-default-rtdb.asia-southeast1.firebasedatabase.app",
+                projectId: "loginforme-f4886",
+                storageBucket: "loginforme-f4886.firebasestorage.app",
+                messagingSenderId: "634439962888",
+                appId: "1:634439962888:web:72b9c573e76c8719f9dcbd"
+              };
+              const app = getApps().length ? getApp() : initializeApp(cfg, 'onb-app');
+              const db = getDatabase(app);
+              await update(ref(db, 'users/' + uid), { onboardingNeverShow: true });
+            } catch (e) {
+              console.warn('onboarding neverShow DB update failed', e);
+            }
+          })();
+        }
+
+        localStorage.removeItem('onboardingPendingFor');
+      } catch(e){}
+      overlay.remove();
+      document.body.classList.remove('locked');
+    }
+
+
+    function setThemeFromToggle(isDark) {
+      document.body.classList.toggle('dark-mode', isDark);
+      try {
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      } catch(e){}
+      const navToggle = document.getElementById('themeToggle');
+      if (navToggle) navToggle.checked = isDark;
+    }
+
+    function renderStep() {
+      stepLabelEl.textContent = `Step ${current + 1} of ${totalSteps}`;
+      if (stepKey) {
+        try { localStorage.setItem(stepKey, String(current)); } catch (_) {}
+      }
+      let html = '';
+      let actions = '';
+
+      if (current === 0) {
+        html = `
+          <h3>Choose Your Theme</h3>
+          <p>
+            Welcome! Let’s start by choosing how you want the site to look.<br>
+            Select the theme that feels best for your eyes —
+            <span style="color:#facc15;font-weight:800;">Light Mode</span> or
+            <span style="color:#38bdf8;font-weight:800;">Dark Mode</span>.<br>
+            <small style="color:#9ca3af;">(You can change this anytime from the theme switch in the menu.)</small>
+          </p>
+          <div class="onb-theme-toggle">
+            <span>Light</span>
+            <label class="theme-switch">
+              <input type="checkbox" id="onbThemeToggle" />
+              <span class="slider"></span>
+            </label>
+            <span>Dark</span>
+          </div>
+        `;
+        actions = `
+          <div class="onb-actions-right">
+            <button class="onb-btn primary" id="onbNext">Next</button>
+          </div>
+        `;
+      } else if (current === 1) {
+        html = `
+          <h3>Welcome to Board Rank</h3>
+          <p>
+            Hi <strong style="color:#f97316;">${safeName}</strong>, welcome to
+            <strong style="color:#38bdf8;">Board Rank</strong>!<br>
+            Here, you can explore every <span style="color:#22c55e;">SSC</span> and
+            <span style="color:#22c55e;">HSC</span> result from the Chattogram Board, starting from
+            <strong style="color:#facc15;">2022</strong>.<br>
+            Let’s walk you through the main features so you can get the most out of your experience.
+          </p>
+        `;
+        actions = `
+          <div class="onb-actions-right">
+            <button class="onb-btn primary" id="onbNext">Next</button>
+          </div>
+        `;
+      } else if (current === 2) {
+        html = `
+          <h3>How to Use the Website</h3>
+          <ul class="onb-list">
+            <li>Tap on a student’s <strong style="color:#38bdf8;">name</strong> to view their full marksheet.</li>
+            <li>Tap on a <strong style="color:#22c55e;">school name</strong> to see that school’s full ranking.</li>
+            <li>Use the <strong style="color:#facc15;">search bar</strong> to look up results by name, roll, or school.</li>
+            <li>Use <strong style="color:#f97316;">Advanced Filters</strong> to fine‑tune your search on mobile.</li>
+            <li>Check out <strong style="color:#eab308;">Top Schools</strong> to see the strongest performers, sorted by % of GPA‑5 achievers.</li>
+          </ul>
+        `;
+        actions = `
+          <div class="onb-actions-right">
+            <button class="onb-btn primary" id="onbNext">Next</button>
+          </div>
+        `;
+      } else if (current === 3) {
+        html = `
+          <h3>Important Disclaimer</h3>
+          <p>
+            Our ranking system is
+            <strong style="color:#f97316;text-decoration:underline;">NOT official</strong>.<br>
+            All data is collected from <span style="color:#22c55e;">publicly available</span> records on the BISE Chattogram website.
+          </p>
+          <p>
+            Your <span style="color:#38bdf8;font-weight:800;">privacy</span> matters to us.<br>
+            If you want your information removed, go to
+            <strong style="color:#facc15;">Contact</strong> in the navigation bar, submit the form, and our team will review your request within about
+            <strong style="color:#facc15;">72 hours</strong>.
+          </p>
+        `;
+        actions = `
+          <button class="onb-btn link" id="onbContact">Request Now</button>
+          <div class="onb-actions-right">
+            <button class="onb-btn primary" id="onbNext">Next</button>
+          </div>
+        `;
+      } else if (current === 4) {
+        html = `
+          <h3>Your Profile</h3>
+          <p>
+            Your <strong style="color:#38bdf8;">Profile</strong> page lets you customize your details and view your browsing history.
+          </p>
+          <p>
+            For your safety, please
+            <strong style="color:#f97316;">do not enter sensitive information or passwords</strong> here.<br>
+            Keep it simple — school, goals, and achievements are enough.
+          </p>
+        `;
+        actions = `
+          <button class="onb-btn link" id="onbProfile">Customize Now</button>
+          <div class="onb-actions-right">
+            <button class="onb-btn primary" id="onbNext">Next</button>
+          </div>
+        `;
+      } else if (current === 5) {
+        html = `
+          <h3>Favourites</h3>
+          <p>
+            Whenever you open a student’s result, you’ll see an
+            <strong style="color:#f97316;">Add to Favourite</strong> button.
+          </p>
+          <p>
+            All your favourite students are saved in the
+            <strong style="color:#22c55e;">Favourites</strong> page from the navigation bar,
+            so you can easily return to them anytime.
+          </p>
+        `;
+        actions = `
+          <button class="onb-btn link" id="onbFav">Favourite Page</button>
+          <div class="onb-actions-right">
+            <button class="onb-btn primary" id="onbNext">Next</button>
+          </div>
+        `;
+      } else if (current === 6) {
+        html = `
+          <h3>Leave a Review</h3>
+          <p>
+            Before you continue — consider leaving a short review.
+          </p>
+          <p>
+            Whether you praise me or curse me, your message genuinely makes my day.<br>
+          </p>
+        `;
+        actions = `
+          <button class="onb-btn link" id="onbReview">Leave a Review</button>
+          <div class="onb-actions-right">
+            <button class="onb-btn primary" id="onbNext">Next</button>
+          </div>
+        `;
+      } else { // current === 7
+        html = `
+          <h3 style="color:#facc15;">The ULTIMATE Question</h3>
+          <p>
+            <strong style="color:#22c55e;">
+              Do you accept that <span style="color:#38bdf8;">Cristiano Ronaldo</span> is the GOAT? 
+            </strong>
+          </p>
+          <img class="onb-cr7-img" src="asset/cr7.jpeg" alt="Cristiano Ronaldo">
+        `;
+        actions = `
+          <div class="onb-actions-right">
+            <button class="onb-btn primary" id="onbAccept">Accept</button>
+            <button class="onb-btn" id="onbReject">Reject</button>
+          </div>
+        `;
+      }
+
+      contentEl.innerHTML = html;
+      actionsEl.innerHTML = actions;
+
+      // Wire Next
+      const nextBtn = document.getElementById('onbNext');
+      if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+          if (current < totalSteps - 1) {
+            current += 1;
+            renderStep();
+          } else {
+            finish();
+          }
+        });
+      }
+
+      // Step-specific actions
+      if (current === 0) {
+        const t = document.getElementById('onbThemeToggle');
+        if (t) {
+          let saved = null;
+          try { saved = localStorage.getItem('theme'); } catch(e){}
+          const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          const isDark = saved ? (saved === 'dark') : prefersDark;
+          t.checked = isDark;
+          setThemeFromToggle(isDark);
+          t.addEventListener('change', () => setThemeFromToggle(t.checked));
+        }
+      } else if (current === 3) {
+        const cBtn = document.getElementById('onbContact');
+        if (cBtn) {
+          cBtn.addEventListener('click', () => {
+            window.location.href = 'contactus.html';
+          });
+        }
+      } else if (current === 4) {
+        const pBtn = document.getElementById('onbProfile');
+        if (pBtn) {
+          pBtn.addEventListener('click', () => {
+            window.location.href = 'profile.html';
+          });
+        }
+      } else if (current === 5) {
+        const fBtn = document.getElementById('onbFav');
+        if (fBtn) {
+          fBtn.addEventListener('click', () => {
+            window.location.href = 'favorite.html';
+          });
+        }
+      } else if (current === 6) {
+        const rBtn = document.getElementById('onbReview');
+        if (rBtn) {
+          rBtn.addEventListener('click', () => {
+            window.location.href = 'review.html';
+          });
+        }
+      } else if (current === 7) {
+        const aBtn = document.getElementById('onbAccept');
+        const rejBtn = document.getElementById('onbReject');
+        if (aBtn) aBtn.addEventListener('click', finish);
+        if (rejBtn) {
+          rejBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            rejBtn.classList.add('onb-broken');
+            setTimeout(() => rejBtn.classList.remove('onb-broken'), 400);
+          });
+        }
+      }
+    }
+
+    renderStep();
+  } catch (e) {
+    console.error('Onboarding wizard error:', e);
+  }
+}
+window.showOnboardingWizard = showOnboardingWizard;
+
 document.getElementById('helpBtn')?.addEventListener('click', showRankTipsPopup);
 document.addEventListener("DOMContentLoaded", () => {
     // Always show Profile & Favourite in the navbar, even if not logged in
@@ -176,6 +489,37 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById('helpBtnHero')?.addEventListener('click', showRankTipsPopup);
   initThemeToggle();
   initNavToggle();
+   // Onboarding: show only once, right after first login for this user
+   try {
+    const uid = localStorage.getItem('loggedInUserId');
+    const pendingFor = localStorage.getItem('onboardingPendingFor');
+    const doneKey = uid ? ('onboardingDone_v1_' + uid) : null;
+    const neverKey = uid ? ('onb_never_v1_' + uid) : null;
+    const stepKey = uid ? ('onb_step_v1_' + uid) : null;
+    const alreadyDone = doneKey ? localStorage.getItem(doneKey) === '1' : false;
+    const never = neverKey ? localStorage.getItem(neverKey) === '1' : false;
+
+    // Only show onboarding on home page (index)
+    const path = location.pathname || '';
+    const isHome = /(?:^|\/)(index\.html)?$/.test(path) || path.endsWith('/rank/') || path.endsWith('/rank');
+
+    if (uid && pendingFor === uid && !alreadyDone && !never && isHome) {
+      const displayName = localStorage.getItem('userName') || 'User';
+      let startStep = 0;
+      if (stepKey) {
+        const raw = localStorage.getItem(stepKey);
+        const n = parseInt(raw || '0', 10);
+        if (!isNaN(n) && n >= 0) startStep = n;
+      }
+      setTimeout(() => {
+        if (typeof showOnboardingWizard === 'function') {
+          showOnboardingWizard(displayName, uid, startStep);
+        }
+      }, 800);
+    }
+  } catch (e) {
+    console.warn('Onboarding check failed', e);
+  }
   // Log page view (if logged in)
 (async () => {
   try {
@@ -185,13 +529,13 @@ document.addEventListener("DOMContentLoaded", () => {
         const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
         const { getDatabase, ref, push } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js');
         const cfg = {
-          apiKey: "AIzaSyBaKVrTWKeaUxa0EaiDBR8OGpGCAjxAcUA",
-          authDomain: "boardrankctg.firebaseapp.com",
-          databaseURL: "https://boardrankctg-default-rtdb.asia-southeast1.firebasedatabase.app",
-          projectId: "boardrankctg",
-          storageBucket: "boardrankctg.firebasestorage.app",
-          messagingSenderId: "751761229963",
-          appId: "1:751761229963:web:43f9dbf71feef6dc9cec8e"
+          apiKey: "AIzaSyAIsOwpONfGwTDFEbfdno8O3sm2G8GObiU",
+          authDomain: "loginforme-f4886.firebaseapp.com",
+          databaseURL: "https://loginforme-f4886-default-rtdb.asia-southeast1.firebasedatabase.app",
+          projectId: "loginforme-f4886",
+          storageBucket: "loginforme-f4886.firebasestorage.app",
+          messagingSenderId: "634439962888",
+          appId: "1:634439962888:web:72b9c573e76c8719f9dcbd"
         };
         const app = window.__br_logApp || initializeApp(cfg, 'logApp');
         window.__br_logApp = app;
@@ -451,13 +795,13 @@ ${localStorage.getItem('userLoggedIn') === 'true' ? `
         const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
         const { getDatabase, ref, push } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js');
         const cfg = {
-          apiKey: "AIzaSyBaKVrTWKeaUxa0EaiDBR8OGpGCAjxAcUA",
-          authDomain: "boardrankctg.firebaseapp.com",
-          databaseURL: "https://boardrankctg-default-rtdb.asia-southeast1.firebasedatabase.app",
-          projectId: "boardrankctg",
-          storageBucket: "boardrankctg.firebasestorage.app",
-          messagingSenderId: "751761229963",
-          appId: "1:751761229963:web:43f9dbf71feef6dc9cec8e"
+          apiKey: "AIzaSyAIsOwpONfGwTDFEbfdno8O3sm2G8GObiU",
+          authDomain: "loginforme-f4886.firebaseapp.com",
+          databaseURL: "https://loginforme-f4886-default-rtdb.asia-southeast1.firebasedatabase.app",
+          projectId: "loginforme-f4886",
+          storageBucket: "loginforme-f4886.firebasestorage.app",
+          messagingSenderId: "634439962888",
+          appId: "1:634439962888:web:72b9c573e76c8719f9dcbd"
         };
         const app = window.__br_logApp || initializeApp(cfg, 'logApp');
         window.__br_logApp = app;
@@ -525,13 +869,13 @@ async function toggleFavorite(name, roll, institution, gpa, year, group) {
 
     // Reuse the same app for favourites
     const dbApp = window.__br_favApp || initializeApp({
-      apiKey: "AIzaSyBaKVrTWKeaUxa0EaiDBR8OGpGCAjxAcUA",
-      authDomain: "boardrankctg.firebaseapp.com",
-      databaseURL: "https://boardrankctg-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "boardrankctg",
-      storageBucket: "boardrankctg.firebasestorage.app",
-      messagingSenderId: "751761229963",
-      appId: "1:751761229963:web:43f9dbf71feef6dc9cec8e"
+      apiKey: "AIzaSyAIsOwpONfGwTDFEbfdno8O3sm2G8GObiU",
+      authDomain: "loginforme-f4886.firebaseapp.com",
+      databaseURL: "https://loginforme-f4886-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "loginforme-f4886",
+      storageBucket: "loginforme-f4886.firebasestorage.app",
+      messagingSenderId: "634439962888",
+      appId: "1:634439962888:web:72b9c573e76c8719f9dcbd"
     }, "favApp");
     window.__br_favApp = dbApp;
 
@@ -738,13 +1082,13 @@ if (!roll2) return showModal({
         const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
         const { getDatabase, ref, push } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js');
         const cfg = {
-          apiKey: "AIzaSyBaKVrTWKeaUxa0EaiDBR8OGpGCAjxAcUA",
-          authDomain: "boardrankctg.firebaseapp.com",
-          databaseURL: "https://boardrankctg-default-rtdb.asia-southeast1.firebasedatabase.app",
-          projectId: "boardrankctg",
-          storageBucket: "boardrankctg.firebasestorage.app",
-          messagingSenderId: "751761229963",
-          appId: "1:751761229963:web:43f9dbf71feef6dc9cec8e"
+          apiKey: "AIzaSyAIsOwpONfGwTDFEbfdno8O3sm2G8GObiU",
+          authDomain: "loginforme-f4886.firebaseapp.com",
+          databaseURL: "https://loginforme-f4886-default-rtdb.asia-southeast1.firebasedatabase.app",
+          projectId: "loginforme-f4886",
+          storageBucket: "loginforme-f4886.firebasestorage.app",
+          messagingSenderId: "634439962888",
+          appId: "1:634439962888:web:72b9c573e76c8719f9dcbd"
         };
         const app = window.__br_logApp || initializeApp(cfg, 'logApp');
         window.__br_logApp = app;

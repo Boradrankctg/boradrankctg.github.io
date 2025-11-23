@@ -1,7 +1,6 @@
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
-    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-database.js";
-
+    import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-database.js";
     const authConfig = {
       apiKey: "AIzaSyAIsOwpONfGwTDFEbfdno8O3sm2G8GObiU",
       authDomain: "loginforme-f4886.firebaseapp.com",
@@ -13,36 +12,34 @@
     };
 
     const dbConfig = {
-      apiKey: "AIzaSyBaKVrTWKeaUxa0EaiDBR8OGpGCAjxAcUA",
-      authDomain: "boardrankctg.firebaseapp.com",
-      databaseURL: "https://boardrankctg-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "boardrankctg",
-      storageBucket: "boardrankctg.firebasestorage.app",
-      messagingSenderId: "751761229963",
-      appId: "1:751761229963:web:43f9dbf71feef6dc9cec8e"
+      apiKey: "AIzaSyAIsOwpONfGwTDFEbfdno8O3sm2G8GObiU",
+      authDomain: "loginforme-f4886.firebaseapp.com",
+      databaseURL: "https://loginforme-f4886-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "loginforme-f4886",
+      storageBucket: "loginforme-f4886.firebasestorage.app",
+      messagingSenderId: "634439962888",
+      appId: "1:634439962888:web:72b9c573e76c8719f9dcbd"
     };
 
-    // Initialize both apps
     const authApp = initializeApp(authConfig);
     const dbApp = initializeApp(dbConfig, "dbApp");
-    
+
     const auth = getAuth(authApp);
     const db = getDatabase(dbApp);
     const googleProvider = new GoogleAuthProvider();
 
-    // Show message function
     function showMessage(message, divId) {
       var messageDiv = document.getElementById(divId);
       messageDiv.style.display = "block";
       messageDiv.innerHTML = message;
       messageDiv.style.opacity = 1;
-      
+
       if (message.includes('Successfully') || message.includes('successful')) {
         messageDiv.className = 'message-div success';
       } else {
         messageDiv.className = 'message-div error';
       }
-      
+
       setTimeout(function() {
         messageDiv.style.opacity = 0;
         setTimeout(() => {
@@ -51,7 +48,6 @@
       }, 5000);
     }
 
-    // Tab switching
     document.getElementById('signInTabBtn').addEventListener('click', () => {
       document.getElementById('signInTabBtn').classList.add('active');
       document.getElementById('signUpTabBtn').classList.remove('active');
@@ -66,11 +62,10 @@
       document.getElementById('signInForm').style.display = 'none';
     });
 
-    // Sign Up
     const signUp = document.getElementById('submitSignUp');
     signUp.addEventListener('click', (event) => {
       event.preventDefault();
-      
+
       const email = document.getElementById('rEmail').value;
       const password = document.getElementById('rPassword').value;
       const confirmPassword = document.getElementById('rPasswordConfirm').value;
@@ -101,17 +96,17 @@
             uid: user.uid,
             createdAt: Date.now()
           };
-          
+
           showMessage('Account Created Successfully!', 'signUpMessage');
-          
-          // Save to database
+
           set(ref(db, 'users/' + user.uid), userData)
             .then(() => {
               localStorage.setItem('loggedInUserId', user.uid);
               localStorage.setItem('userLoggedIn', 'true');
               localStorage.setItem('userName', userData.fullName);
               localStorage.setItem('userEmail', email);
-              
+              localStorage.setItem('onboardingPendingFor', user.uid); 
+
               setTimeout(() => {
                 window.location.href = 'index.html';
               }, 1500);
@@ -135,11 +130,10 @@
 
     });
 
-    // Sign In
     const signIn = document.getElementById('submitSignIn');
     signIn.addEventListener('click', (event) => {
       event.preventDefault();
-      
+
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
 
@@ -149,21 +143,33 @@
       }
 
       signInWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
+                .then(async (userCredential) => {
           showMessage('Login successful!', 'signInMessage');
           const user = userCredential.user;
-          
+
           localStorage.setItem('loggedInUserId', user.uid);
           localStorage.setItem('userLoggedIn', 'true');
           localStorage.setItem('userEmail', email);
-          
-          // Get user data from database
+
+          // Check DB flag to decide whether to show onboarding
+          try {
+            const snap = await get(ref(db, 'users/' + user.uid));
+            const neverShow = snap.exists() && snap.val().onboardingNeverShow === true;
+            if (!neverShow) {
+              localStorage.setItem('onboardingPendingFor', user.uid);
+            }
+          } catch (e) {
+            // If DB check fails, fall back to showing onboarding
+            localStorage.setItem('onboardingPendingFor', user.uid);
+          }
+
           set(ref(db, 'users/' + user.uid + '/lastLogin'), Date.now());
-          
+
           setTimeout(() => {
             window.location.href = 'index.html';
           }, 1000);
         })
+        
         .catch((error) => {
           const errorCode = error.code;
           if (errorCode === 'auth/invalid-credential') {
@@ -176,43 +182,63 @@
         });
     });
 
-    // Google Sign In
-    document.getElementById('googleSignIn').addEventListener('click', (event) => {
-      event.preventDefault();
-      
-      signInWithPopup(auth, googleProvider)
-        .then((result) => {
-          const user = result.user;
-          
-          // Save user data
-          const userData = {
-            email: user.email,
-            fullName: user.displayName,
-            photoURL: user.photoURL,
-            uid: user.uid,
-            provider: 'google',
-            createdAt: Date.now()
-          };
-          
-          set(ref(db, 'users/' + user.uid), userData).then(() => {
-            localStorage.setItem('loggedInUserId', user.uid);
-            localStorage.setItem('userLoggedIn', 'true');
-            localStorage.setItem('userName', user.displayName);
-            localStorage.setItem('userEmail', user.email);
-            localStorage.setItem('userPhoto', user.photoURL || '');
-            
-            showMessage('Welcome!', 'signInMessage');
-            setTimeout(() => {
-              window.location.href = 'index.html';
-            }, 1000);
-          });
+document.getElementById('googleSignIn').addEventListener('click', (event) => {
+  event.preventDefault();
+
+  signInWithPopup(auth, googleProvider)
+    .then((result) => {
+      const user = result.user;
+      console.log('Google sign-in success:', user);
+
+      const userData = {
+        email: user.email,
+        fullName: user.displayName,
+        photoURL: user.photoURL,
+        uid: user.uid,
+        provider: 'google',
+        createdAt: Date.now()
+      };
+
+      set(ref(db, 'users/' + user.uid), userData)
+        .then(() => {
+          console.log('Google user saved to DB');
         })
-        .catch((error) => {
-          showMessage('Google sign-in failed', 'signInMessage');
-          console.error(error);
+        .catch((e) => {
+          console.error('Failed to save Google user in DB:', e);
+
+        })
+         .finally(async () => {
+
+          localStorage.setItem('loggedInUserId', user.uid);
+          localStorage.setItem('userLoggedIn', 'true');
+          localStorage.setItem('userName', user.displayName);
+          localStorage.setItem('userEmail', user.email);
+          localStorage.setItem('userPhoto', user.photoURL || '');
+
+          // Check DB flag for onboardingNeverShow
+          try {
+            const snap = await get(ref(db, 'users/' + user.uid));
+            const neverShow = snap.exists() && snap.val().onboardingNeverShow === true;
+            if (!neverShow) {
+              localStorage.setItem('onboardingPendingFor', user.uid);
+            }
+          } catch (e) {
+            localStorage.setItem('onboardingPendingFor', user.uid);
+          }
+
+          showMessage('Welcome!', 'signInMessage');
+          setTimeout(() => {
+            window.location.href = 'index.html';
+          }, 1000);
         });
+    })
+    .catch((error) => {
+      console.error('Google sign-in error:', error);
+
+      showMessage('Google sign-in failed: ' + (error.message || error.code || ''), 'signInMessage');
     });
-        // Password show/hide toggles
+});
+
     document.querySelectorAll('.pw-toggle').forEach(btn => {
       btn.addEventListener('click', () => {
         const targetId = btn.getAttribute('data-target');

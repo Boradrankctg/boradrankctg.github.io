@@ -2,19 +2,30 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
 import { getDatabase, ref, runTransaction, set, onValue, get, update, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBaKVrTWKeaUxa0EaiDBR8OGpGCAjxAcUA",
-  authDomain: "boardrankctg.firebaseapp.com",
-  databaseURL: "https://boardrankctg-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "boardrankctg",
-  storageBucket: "boardrankctg.firebasestorage.app",
-  messagingSenderId: "751761229963",
-  appId: "1:751761229963:web:43f9dbf71feef6dc9cec8e",
-  measurementId: "G-3Y6J44NWNH"
+  apiKey: "AIzaSyAIsOwpONfGwTDFEbfdno8O3sm2G8GObiU",
+  authDomain: "loginforme-f4886.firebaseapp.com",
+  databaseURL: "https://loginforme-f4886-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "loginforme-f4886",
+  storageBucket: "loginforme-f4886.firebasestorage.app",
+  messagingSenderId: "634439962888",
+  appId: "1:634439962888:web:72b9c573e76c8719f9dcbd",
+  measurementId: "G-VJVC929MK3"
 };
-
+// Second Firebase app: login-firebase (only for banner + display settings + poll config)
+const loginDbConfig = {
+  apiKey: "AIzaSyAIsOwpONfGwTDFEbfdno8O3sm2G8GObiU",
+  authDomain: "loginforme-f4886.firebaseapp.com",
+  databaseURL: "https://loginforme-f4886-default-rtdb.asia-southeast1.firebasedatabase.app", // <-- use your exact URL
+  projectId: "loginforme-f4886",
+  storageBucket: "loginforme-f4886.firebasestorage.app",
+  messagingSenderId: "634439962888",
+  appId: "1:634439962888:web:72b9c573e76c8719f9dcbd"
+};
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 window.db = db;
+const loginDbApp = initializeApp(loginDbConfig, "login-db-app");
+const loginDb = getDatabase(loginDbApp);
 window.__br_lock_banner = false;
 window.__br_lock_poll = false;
 window.__br_lock_display = false;
@@ -220,8 +231,7 @@ function startBanCountdown(until) {
   window.__banTick = setInterval(tick, 1000);
 }
 function initAnnouncementsListener() {
-  const annRef = ref(db, 'announcements/global');
-  onValue(annRef, (snap) => {
+  const annRef = ref(loginDb, 'announcements/global');  onValue(annRef, (snap) => {
     const banner = document.getElementById('annBanner');
     if (!banner) return;
 
@@ -285,10 +295,8 @@ async function checkAndEnforceBan() {
 
 function initDisplaySettingsListener() {
   try {
-    const dRef = ref(db, 'displaySettings');
-    onValue(dRef, (snap) => {
+    const dRef = ref(loginDb, 'displaySettings');    onValue(dRef, (snap) => {
       if (window.__br_lock_display) {
-        // When locked, force safe defaults
         window.__br_displaySettings = {
           nameSearch: true,
           showNames: true,
@@ -307,8 +315,7 @@ function initDisplaySettingsListener() {
 }
 function initPollFeature() {
   try {
-    const pRef = ref(db, 'polls/global');
-    onValue(pRef, (snap) => {
+    const pRef = ref(loginDb, 'polls/global');    onValue(pRef, (snap) => {
       // If locked, completely ignore polls
       if (window.__br_lock_poll) return;
 

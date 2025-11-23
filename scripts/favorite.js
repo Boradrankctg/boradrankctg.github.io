@@ -1,14 +1,15 @@
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
-      import { getDatabase, ref, onValue, remove } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-database.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+      import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+      import { getDatabase, ref, onValue, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
       const dbConfig = {
-        apiKey: "AIzaSyBaKVrTWKeaUxa0EaiDBR8OGpGCAjxAcUA",
-        authDomain: "boardrankctg.firebaseapp.com",
-        databaseURL: "https://boardrankctg-default-rtdb.asia-southeast1.firebasedatabase.app",
-        projectId: "boardrankctg",
-        storageBucket: "boardrankctg.firebasestorage.app",
-        messagingSenderId: "751761229963",
-        appId: "1:751761229963:web:43f9dbf71feef6dc9cec8e"
+        apiKey: "AIzaSyAIsOwpONfGwTDFEbfdno8O3sm2G8GObiU",
+        authDomain: "loginforme-f4886.firebaseapp.com",
+        databaseURL: "https://loginforme-f4886-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "loginforme-f4886",
+        storageBucket: "loginforme-f4886.firebasestorage.app",
+        messagingSenderId: "634439962888",
+        appId: "1:634439962888:web:72b9c573e76c8719f9dcbd"
       };
 
       const app = initializeApp(dbConfig);

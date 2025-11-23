@@ -482,3 +482,45 @@ function initNavToggle() {
     if (window.innerWidth > 860) closeNav();
   });
 } 
+// Basic spam protection: ignore rapid repeated clicks on buttons/links
+(function(){
+  let lastClick = 0;
+  const MIN_GAP = 600; // milliseconds between allowed actions
+
+  document.addEventListener('click', (e) => {
+    const t = e.target.closest('button, a, [role="button"]');
+    if (!t) return;
+    const now = Date.now();
+    if (now - lastClick < MIN_GAP) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      return;
+    }
+    lastClick = now;
+  }, true);
+})();
+// Disable right-click
+document.addEventListener('contextmenu', e => e.preventDefault());
+
+// Disable common DevTools shortcuts
+document.addEventListener('keydown', e => {
+
+  // F12
+  if (e.key === 'F12') e.preventDefault();
+
+  // CTRL+SHIFT+I / J
+  if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J')) e.preventDefault();
+
+  // CTRL+U
+  if (e.ctrlKey && (e.key.toLowerCase() === 'u')) e.preventDefault();
+
+  // CTRL+SHIFT+C (inspect)
+  if (e.ctrlKey && e.shiftKey && e.key === 'C') e.preventDefault();
+
+  // CTRL+SHIFT+M (device toolbar)
+  if (e.ctrlKey && e.shiftKey && e.key === 'M') e.preventDefault();
+
+  // CTRL+SHIFT+S (open devtools settings)
+  if (e.ctrlKey && e.shiftKey && e.key === 'S') e.preventDefault();
+
+});
