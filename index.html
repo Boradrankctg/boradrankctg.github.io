@@ -104,6 +104,7 @@
 <div class="year-dropdown">
 <select id="yearDropdown" onchange="loadYear(this.value)">
 <option value=""> Year and Exam</option>
+<option value="2025">SSC 2026</option>
 <option value="hsc_2025">HSC 2025</option>
 <option value="2025">SSC 2025</option>
 <option value="2024">SSC 2024</option>
@@ -116,6 +117,15 @@
 <div id="content"></div>
 <div id="noDataMessage" style="display:none;">Oops! No data found.</div>
 </section>
+
+<div class="featured-box" data-value="2026" onclick="handleFeaturedClick('2026', this)">
+<div class="new-ribbon"><span style="left: -14px; position: relative;">NEW</span></div>
+<div class="featured-text">
+<div class="ssc-line">SSC</div>
+<div class="year-line">26</div>
+</div>
+</div>
+
 
 <div class="featured-box" data-value="hsc_2025" onclick="handleFeaturedClick('hsc_2025', this)">
 <div class="new-ribbon"><span style="left: -14px; position: relative;">RECHECK</span></div>
